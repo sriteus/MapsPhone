@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Google Maps Place Details</title>
+    <style>
+      /* Optional: Makes the sample page fill the window. */
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #storeDetails {
+        background-color: #fff;
+        font-size: 15px;
+        font-weight: 300;
+        margin: 3px;
+        padding: 10px;
+        text-overflow: ellipsis;
+        max-width: 600px;
+        width: 100%;
+        overflow-y: auto;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+      }
+
+      th {
+        background-color: #f2f2f2;
+      }
+
+      .undefined-popup {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 999;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .undefined-popup-content {
+        background-color: #fff;
+        font-size: 15px;
+        font-weight: 300;
+        margin: 3px;
+        padding: 10px;
+        text-overflow: ellipsis;
+        max-width: 600px;
+        width: 80%;
+        overflow-y: auto;
+        max-height: 80%;
+      }
+
+      .undefined-popup-close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script>
+      var sessionString = sessionStorage.getItem("TheArray");
+      var plcID = JSON.parse(sessionString);
+      console.log(plcID);
+    </script>
+    <div id="storeDetails"></div>
+    <!-- Table for valid phone numbers -->
+    <button onclick="exportToExcel()">Export to Excel</button>
+    <button onclick="showUndefinedPopup()">Show Undefined Numbers</button>
+    <!-- Button to show the undefined numbers in a pop-up -->
+
+    <!-- Undefined numbers pop-up -->
+    <div id="undefinedPopup" class="undefined-popup">
+      <div class="undefined-popup-content">
+        <span class="undefined-popup-close" onclick="hideUndefinedPopup()"
+          >&#10006;</span
+        >
+        <h2>Undefined Numbers</h2>
+        <div id="undefinedNumbers"></div>
+      </div>
+    </div>
+
+    <!-- Replace the value of the key parameter with your own API key. -->
+    <script>
+      // This example requires the Places library. Include the libraries=places
+      // parameter when you first load the API. For example:
+      // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+      var validData = [];
+
+      function initMap() {
+        var storeDetails = document.getElementById("storeDetails");
+        var undefinedNumbers = document.getElementById("undefinedNumbers"); // Get the undefined numbers table
+
+        var table = document.createElement("table");
+        var undefinedTable = document.createElement("table"); // Create a table for undefined numbers
+
+        plcID.forEach(function (placeId) {
+          var request = {
+            placeId,
+          };
+
+          var service = new google.maps.places.PlacesService(
+            document.createElement("div")
+          );
+
+          service.getDetails(request, function (place, status) {
+            if (status === google.maps.places.PlacesServiceStatus.OK) {
+              var phoneNumber = place.formatted_phone_number || "";
+              if (phoneNumber && !phoneNumber.startsWith("011")) {
+                // Add valid phone numbers to the main table
+                var row = table.insertRow();
+                var nameCell = row.insertCell(0);
+                var placeIdCell = row.insertCell(1);
+                var addressCell = row.insertCell(2);
+                var phoneCell = row.insertCell(3);
+
+                nameCell.innerHTML = place.name;
+                placeIdCell.innerHTML = place.place_id;
+                addressCell.innerHTML = place.formatted_address;
+                phoneCell.innerHTML = phoneNumber;
+
+                validData.push({
+                  name: place.name,
+                  placeId: place.place_id,
+                  address: place.formatted_address,
+                  phone: phoneNumber,
+                });
+              } else {
+                // Add invalid or undefined phone numbers to the undefined table
+                var undefinedRow = undefinedTable.insertRow();
+                var undefinedNameCell = undefinedRow.insertCell(0);
+                var undefinedPlaceIdCell = undefinedRow.insertCell(1);
+                var undefinedAddressCell = undefinedRow.insertCell(2);
+
+                undefinedNameCell.innerHTML = place.name;
+                undefinedPlaceIdCell.innerHTML = place.place_id;
+                undefinedAddressCell.innerHTML = place.formatted_address;
+
+                nameCell.style.color = "red"; // Mark invalid entries as red
+                placeIdCell.style.color = "red";
+                addressCell.style.color = "red";
+                phoneCell.style.color = "red";
+              }
+            }
+          });
+        });
+
+        var headerRow = table.insertRow(0);
+        var nameHeader = headerRow.insertCell(0);
+        var placeIdHeader = headerRow.insertCell(1);
+        var addressHeader = headerRow.insertCell(2);
+        var phoneHeader = headerRow.insertCell(3);
+
+        nameHeader.innerHTML = "<strong>Store Name</strong>";
+        placeIdHeader.innerHTML = "<strong>Place ID</strong>";
+        addressHeader.innerHTML = "<strong>Address</strong>";
+        phoneHeader.innerHTML = "<strong>Phone Number</strong>";
+
+        storeDetails.appendChild(table);
+
+        // Add headers to the undefined numbers table
+        var undefinedHeaderRow = undefinedTable.insertRow(0);
+        var undefinedNameHeader = undefinedHeaderRow.insertCell(0);
+        var undefinedPlaceIdHeader = undefinedHeaderRow.insertCell(1);
+        var undefinedAddressHeader = undefinedHeaderRow.insertCell(2);
+
+        undefinedNameHeader.innerHTML = "<strong>Store Name</strong>";
+        undefinedPlaceIdHeader.innerHTML = "<strong>Place ID</strong>";
+        undefinedAddressHeader.innerHTML = "<strong>Address</strong>";
+
+        undefinedNumbers.appendChild(undefinedTable); // Append the undefined numbers table
+      }
+
+      function exportToExcel() {
+        var wb = XLSX.utils.book_new();
+        wb.SheetNames.push("Store Details");
+
+        var ws = XLSX.utils.json_to_sheet(validData);
+        wb.Sheets["Store Details"] = ws;
+
+        var wbout = XLSX.write(wb, { bookType: "xlsx", type: "binary" });
+
+        function s2ab(s) {
+          var buf = new ArrayBuffer(s.length);
+          var view = new Uint8Array(buf);
+          for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xff;
+          return buf;
+        }
+
+        var blob = new Blob([s2ab(wbout)], {
+          type: "application/octet-stream",
+        });
+        var url = URL.createObjectURL(blob);
+
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "store_details.xlsx";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+
+      function showUndefinedPopup() {
+        var undefinedPopup = document.getElementById("undefinedPopup");
+        undefinedPopup.style.display = "block";
+      }
+
+      function hideUndefinedPopup() {
+        var undefinedPopup = document.getElementById("undefinedPopup");
+        undefinedPopup.style.display = "none";
+      }
+    </script>
+
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAvXr6KMQxhQ1opvOnX30JeO3zRe0CCNyo&libraries=places&callback=initMap"
+    ></script>
+  </body>
+</html>
