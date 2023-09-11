@@ -3,66 +3,135 @@
   <head>
     <title>Google Maps Places API Example</title>
     <style>
-      /* Always set the map height explicitly to define the size of the div
-     * element that contains the map. */
-      #map {
-        height: 45%;
-        width: 80%;
+      /* Add Google Material Design styles for buttons */
+      .google-button {
+        background-color: #4285f4;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
       }
 
-      /* Optional: Makes the sample page fill the window. */
-      html,
-      body {
-        height: 100%;
-        margin: 0;
+      /* Style the input field */
+      .input-field {
+        width: 300px;
+        padding: 10px;
+        font-size: 15px;
+      }
+
+      /* Style the select dropdown */
+      .select-field {
+        width: 300px;
+        padding: 10px;
+        font-size: 15px;
+      }
+
+      /* Style the map container */
+      #map-container {
+        display: flex;
+      }
+
+      /* Style the map */
+      #map {
+        flex: 1;
+        height: 400px;
+      }
+
+      /* Style the sidebar */
+      #sidebar {
+        flex: 1;
+        padding: 20px;
+      }
+
+      /* Style the results list */
+      #places {
+        list-style: none;
         padding: 0;
       }
 
-      #placeId {
-        background-color: #fff;
-        font-size: 15px;
-        font-weight: 300;
-        margin: 3px;
-        padding: 10px;
-        text-overflow: ellipsis;
-        width: 300px;
+      #places li {
+        margin-bottom: 10px;
+        font-size: 18px;
       }
 
-      #searchButton {
-        padding: 10px;
+      /* Style the buttons in the sidebar */
+      #more,
+      #nxt {
+        margin-top: 10px;
+        font-size: 16px;
       }
     </style>
   </head>
 
   <body>
-    <input
-      id="pac-input"
-      class="controls"
-      type="text"
-      placeholder="Enter a location"
-    />
-    <div id="type-selector" class="controls">
-      <select id="shop-type">
-        <option value="store">All</option>
-        <option value="cafe">Cafe</option>
-        <option value="electronics_store">Electronics Store</option>
-        <option value="restaurant">Restaurant</option>
-        <option value="supermarket">Supermarket</option>
-        <option value="pharmacy">Pharmacy</option>
-        <option value="clothing_store">Clothing Store</option>
-        <option value="book_store">Book Store</option>
-        <option value="gym">Gym</option>
-        <option value="hardware_store">Hardware Store</option>
-        <!-- Add more shop types here -->
-      </select>
+    <div id="passwordDiv" style="text-align: center; margin-top: 20%">
+      <b>Google Maps API</b>
+      <input
+        id="passwordInput"
+        class="input-field"
+        type="password"
+        placeholder="Enter Passcode"
+      />
+      <button id="passwordButton" class="google-button">Submit Passcode</button>
     </div>
-    <div id="map"></div>
-    <div id="sidebar">
-      <h2>Results</h2>
-      <ul id="places"></ul>
-      <button id="more">Load more results</button>
-      <button id="nxt">Next Step</button>
+
+    <div id="contentDiv" style="display: none">
+      <input
+        id="pac-input"
+        class="input-field"
+        type="text"
+        placeholder="Enter a location"
+      />
+      <div class="select-field">
+        <b>Types of shops:</b>
+        <select id="shop-type">
+          <label for="shop-type">Types:</label>
+          <option value="store">All</option>
+          <option value="cafe">Cafe</option>
+          <option value="electronics_store">Electronics Store</option>
+          <option value="restaurant">Restaurant</option>
+          <option value="supermarket">Supermarket</option>
+          <option value="pharmacy">Pharmacy</option>
+          <option value="clothing_store">Clothing Store</option>
+          <option value="book_store">Book Store</option>
+          <option value="gym">Gym</option>
+          <option value="hardware_store">Hardware Store</option>
+          <option value="hospital">Hosptial</option>
+        </select>
+      </div>
+      <div id="map-container">
+        <div id="map"></div>
+        <div id="sidebar">
+          <h2>Results</h2>
+          <ul id="places"></ul>
+          <button id="more" class="google-button">Load more results</button>
+          <button id="nxt" class="google-button">Next Step</button>
+        </div>
+      </div>
     </div>
+
+    <script>
+      // Obfuscated passcode (base64 encoded)
+      const obfuscatedPasscode = "d2VsY29tZTEyMw=="; // This is "welcome123" base64 encoded
+
+      // Function to show content when the correct passcode is entered
+      function showContent() {
+        document.getElementById("passwordDiv").style.display = "none";
+        document.getElementById("contentDiv").style.display = "block";
+      }
+
+      // Event listener for the password submission button
+      document.getElementById("passwordButton").onclick = function () {
+        const enteredPasscode = document.getElementById("passwordInput").value;
+        if (btoa(enteredPasscode) === obfuscatedPasscode) {
+          showContent(); // Show the content if the passcode is correct
+        } else {
+          alert("Incorrect passcode. Please try again.");
+        }
+      };
+    </script>
+
     <script>
       /* Your JavaScript code here */
 
@@ -217,7 +286,7 @@
     <script>
       document.getElementById("nxt").onclick = function () {
         sessionStorage.setItem("TheArray", JSON.stringify(placeIds));
-        window.location.href = "hi.html";
+        window.location.href = "nextStep.html";
       };
     </script>
     <script

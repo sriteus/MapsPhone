@@ -30,6 +30,7 @@
       table {
         width: 100%;
         border-collapse: collapse;
+        border: 1px solid #ddd;
       }
 
       th,
@@ -75,6 +76,20 @@
         right: 10px;
         cursor: pointer;
       }
+
+      .button {
+        background-color: #4285f4;
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        margin: 5px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .button:hover {
+        background-color: #357dbf;
+      }
     </style>
   </head>
   <body>
@@ -86,8 +101,10 @@
     </script>
     <div id="storeDetails"></div>
     <!-- Table for valid phone numbers -->
-    <button onclick="exportToExcel()">Export to Excel</button>
-    <button onclick="showUndefinedPopup()">Show Undefined Numbers</button>
+    <button class="button" onclick="exportToExcel()">Export to Excel</button>
+    <button class="button" onclick="showUndefinedPopup()">
+      Show Undefined Numbers
+    </button>
     <!-- Button to show the undefined numbers in a pop-up -->
 
     <!-- Undefined numbers pop-up -->
