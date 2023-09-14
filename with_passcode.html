@@ -65,7 +65,18 @@
   </head>
 
   <body>
-    <div id="contentDiv">
+    <div id="passwordDiv" style="text-align: center; margin-top: 20%">
+      <b>Google Maps API</b>
+      <input
+        id="passwordInput"
+        class="input-field"
+        type="password"
+        placeholder="Enter Passcode"
+      />
+      <button id="passwordButton" class="google-button">Submit Passcode</button>
+    </div>
+
+    <div id="contentDiv" style="display: none">
       <input
         id="pac-input"
         class="input-field"
@@ -132,7 +143,6 @@
           <option value="saloon">Saloon</option>
           <option value="sme">SME</option>
           <option value="msme">MSME</option>
-          <!-- ... (other options) ... -->
         </select>
       </div>
       <div id="map-container">
@@ -145,6 +155,27 @@
         </div>
       </div>
     </div>
+
+    <script>
+      // Obfuscated passcode (base64 encoded)
+      const obfuscatedPasscode = "d2VsY29tZTEyMw=="; // This is "welcome123" base64 encoded
+
+      // Function to show content when the correct passcode is entered
+      function showContent() {
+        document.getElementById("passwordDiv").style.display = "none";
+        document.getElementById("contentDiv").style.display = "block";
+      }
+
+      // Event listener for the password submission button
+      document.getElementById("passwordButton").onclick = function () {
+        const enteredPasscode = document.getElementById("passwordInput").value;
+        if (btoa(enteredPasscode) === obfuscatedPasscode) {
+          showContent(); // Show the content if the passcode is correct
+        } else {
+          alert("Incorrect passcode. Please try again.");
+        }
+      };
+    </script>
 
     <script>
       /* Your JavaScript code here */
